@@ -26,6 +26,12 @@ ALERT_SENDER_EMAIL=
 ALERT_RECIPIENT_EMAIL=
 ```
 
+Customize
+```bash
+POLL_INTERVAL_SECS=60
+RUNTIME_SECS=3600
+```
+
 ### 4. Run Monitor
 ```bash
 python monitor.py
@@ -34,9 +40,9 @@ python monitor.py
 ## Architecture
 
 - `monitor.py` - Main monitoring service
-- `config.py` - Configuration settings
-- `requirements.txt` - Python dependencies
-- `README.md` - This documentation
+- `config.py` - Config settings
+- `requirements.txt` - Dependencies
 
 **Flow**: API Poll → Parse GeoJSON → Check Point/Polygon → Track State → Send Alerts
 **Safety**: All API failures treated as out-of-zone
+

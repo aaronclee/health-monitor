@@ -15,6 +15,7 @@ from shapely.geometry import Point, Polygon
 
 from config import (
     POLL_INTERVAL_SECS, 
+    RUNTIME_SECS,
     API_BASE_URL, 
     CLINICIAN_IDS,
     
@@ -27,6 +28,7 @@ from config import (
 )
 
 load_dotenv()
+
 
 
 def fetch_clinician_data(clinician_id: int) -> Optional[Dict]:
@@ -143,22 +145,45 @@ def check_clinician_status(clinician_id: int) -> bool:
 def main():
     # state tracking
     prev_status: Dict[int, bool] = {cid: True for cid in CLINICIAN_IDS}
+    start_time = time.time()
+    count = 0
+    end_time = start_time + RUNTIME_SECS
     
-    while True:
-        start_time = time.time()
-        print(f"Monitoring {len(CLINICIAN_IDS)} Sprinters at {POLL_INTERVAL_SECS}s interval")
-        for clinician_id in CLINICIAN_IDS:
-            curr_status = check_clinician_status(clinician_id)
-            # alert if status: in-zone --> out-of-zone
-            if prev_status[clinician_id] and not curr_status:
-                reason = "They left their assigned safety zone"
-                send_alert(clinician_id, reason) 
-            prev_status[clinician_id] = curr_status
+    try:
+        while True:
+            # time limit
+            if RUNTIME_SECS and time.time() >= end_time:
+                break
+            iter_start = time.time()
+            count += 1
+            print(f"\nIteration {count} at {time.strftime('%H:%M:%S')}")
+            print(f"Monitoring {len(CLINICIAN_IDS)} Sprinters at {POLL_INTERVAL_SECS}s interval")
+            
+            for clinician_id in CLINICIAN_IDS:
+                curr_status = check_clinician_status(clinician_id)
+                # alert if status: in-zone --> out-of-zone
+                if prev_status[clinician_id] and not curr_status:
+                    reason = "They left their assigned safety zone"
+                    send_alert(clinician_id, reason) 
+                prev_status[clinician_id] = curr_status            
+            # chill until next polling interval
+            elapsed = time.time() - iter_start
+            
+            if RUNTIME_SECS:
+                remaining_runtime = end_time - time.time()
+                sleep_time = min(POLL_INTERVAL_SECS - elapsed, remaining_runtime)
+            else:
+                sleep_time = max(0, POLL_INTERVAL_SECS - elapsed)
+            if sleep_time > 0:
+                time.sleep(sleep_time)
+            else:
+                break
         
-        # chill until next polling interval
-        elapsed = time.time() - start_time
-        sleep_time = max(0, POLL_INTERVAL_SECS - elapsed)  # 60 secs
-        time.sleep(sleep_time)
+        if RUNTIME_SECS:
+            print(f"\nCompleted {count} iterations")
+    except Exception as e:
+        print(f"Error during monitoring: {e}")
+        raise
 
 if __name__ == "__main__":
     main() 

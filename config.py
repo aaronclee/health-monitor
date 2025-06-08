@@ -8,6 +8,7 @@ CLINICIAN_IDS = list(range(1, 8))  # IDs 1-7
 
 # Balance between API load (<100 QPS) and 5-minute alert
 POLL_INTERVAL_SECS = 60  # 7 clinicians/60 secs = 0.12 QPS
+RUNTIME_SECS = 3600  # 3600secs=1hour
 
 SMTP_HOST = os.getenv("SMTP_HOST")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
