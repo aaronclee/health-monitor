@@ -6,8 +6,8 @@ load_dotenv()
 API_BASE_URL = os.getenv("API_BASE_URL")
 CLINICIAN_IDS = list(range(1, 8))  # IDs 1-7
 
-# Balance between API load (<100 QPS) and 5-minute alert
-POLL_INTERVAL_SECS = 60  # 7 clinicians/60 secs = 0.12 QPS
+# API load (<100 QPS) and 5-minute alert
+POLL_INTERVAL_SECS = 300  # 7 clinicians/300 secs = 0.023 QPS
 RUNTIME_SECS = 3600  # 3600secs=1hour
 
 SMTP_HOST = os.getenv("SMTP_HOST")
