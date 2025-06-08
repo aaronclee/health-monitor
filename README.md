@@ -31,14 +31,12 @@ ALERT_RECIPIENT_EMAIL=
 python monitor.py
 ```
 
-## Files
+## Architecture
 
 - `monitor.py` - Main monitoring service
 - `config.py` - Configuration settings
 - `requirements.txt` - Python dependencies
 - `README.md` - This documentation
-
-## Architecture
 
 **Flow**: API Poll → Parse GeoJSON → Check Point/Polygon → Track State → Send Alerts
 **Safety**: All API failures treated as out-of-zone

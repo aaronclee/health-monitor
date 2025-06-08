@@ -39,7 +39,6 @@ def fetch_clinician_data(clinician_id: int) -> Optional[Dict]:
         data = response.json()
         features = data.get("features", [])  # Extract point, polygon features
         if len(features) < 2:
-            print(f"Unexpected API response for clinician {clinician_id}: missing features")
             return None
             
         # Current location
@@ -72,7 +71,7 @@ def is_point_in_polygon(lat: float, lon: float, polygon_coords: List) -> bool:
         point = Point(lon, lat)
         # Handle exterior and holes
         exterior_ring = polygon_coords[0]  # first ring is exterior
-        # Convert [lon, lat] to (lon, lat) tuples for shapely
+        # Convert [lon, lat] to (lon, lat) tuples
         exterior_coords = [(coord[0], coord[1]) for coord in exterior_ring]
         # create polygon
         if len(polygon_coords) > 1:
@@ -86,7 +85,6 @@ def is_point_in_polygon(lat: float, lon: float, polygon_coords: List) -> bool:
         return polygon.contains(point) or polygon.touches(point)  # On boundary counts as in-zone!
         
     except Exception as e:
-        print(f"Error checking point in polygon: {e}")
         return False  # Assume out of zone for safety
 
 def send_alert(clinician_id: int, reason: str) -> None:
@@ -118,14 +116,13 @@ def send_alert(clinician_id: int, reason: str) -> None:
         disposition='inline'
     )
 
-    try:  # sending the message/alert
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            server.starttls()
-            server.login(SMTP_USERNAME, SMTP_PASSWORD)
-            server.send_message(msg)
-        print(f"Alert about clinician {clinician_id} sent!")
-    except Exception as e:
-        print(f"Failed to send alert email: {e} because...")
+    # sending the message/alert
+    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+        server.starttls()
+        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        server.send_message(msg)
+    print(f"Alert about clinician {clinician_id} sent!")
+
 
 def check_clinician_status(clinician_id: int) -> bool:
     data = fetch_clinician_data(clinician_id)

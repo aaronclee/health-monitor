@@ -6,6 +6,3 @@ __pycache__/
 .DS_Store
 
 test_*.py
-setup_env.sh
-env.example
-run_monitor_1hour.py
